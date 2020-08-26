@@ -7,5 +7,7 @@
 ## Tarefas
 - [x] Criar repositório
 - [ ] Definir mecânicas de jogo
+- [ ] Definir o mapa
+- [ ] Definir desafios/obstáculos
 - [ ] Definir história e roteiro
 - [ ] Criação dos sprites iniciais
