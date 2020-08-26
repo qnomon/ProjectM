@@ -11,3 +11,5 @@
 - [ ] Definir desafios/obstáculos
 - [ ] Definir história e roteiro
 - [ ] Criação dos sprites iniciais
+- [ ] Sons
+- [ ] Animação
