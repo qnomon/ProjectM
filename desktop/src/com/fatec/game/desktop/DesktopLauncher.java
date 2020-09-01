@@ -2,11 +2,11 @@ package com.fatec.game.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.fatec.game.ProjectMGame;
+import com.fatec.game.GravityGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new ProjectMGame(), config);
+		new LwjglApplication(new GravityGame(), config);
 	}
 }
