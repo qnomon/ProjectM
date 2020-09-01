@@ -6,6 +6,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -22,9 +23,12 @@ public class LoadingScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private float progress = 0;
     private final GravityGame gravityGame;
+
     public LoadingScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
     }
+
+
 
     @Override
     public void resize(int width, int height) {
@@ -39,6 +43,7 @@ public class LoadingScreen extends ScreenAdapter {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         shapeRenderer = new ShapeRenderer();
         gravityGame.getAssetManager().load("level.tmx", TiledMap.class);
+        gravityGame.getAssetManager().load("player.png", Texture.class);
     }
 
     @Override

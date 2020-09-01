@@ -1,12 +1,11 @@
 package com.fatec.gameScreen;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -25,8 +24,10 @@ public class GameScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private final GravityGame gravityGame;
     private TiledMap tiledMap;
+    private Texture playerTexture;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
+
 
     public GameScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
@@ -47,11 +48,10 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         tiledMap = gravityGame.getAssetManager().get("level.tmx");
+        playerTexture = gravityGame.getAssetManager().get("player.png");
+        player = new Player(playerTexture);
         orthogonalTiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
-        player = new Player();
-
-
     }
 
 
@@ -63,11 +63,11 @@ public class GameScreen extends ScreenAdapter {
         drawDebug();
     }
     private void update(float delta) {
-        player.update();
-
+        player.update(delta);
+        stopPlayerLeavingTheScreen();
     }
     private void clearScreen() {
-        Gdx.gl.glClearColor(0.4f, 0.7f, 0.8f, 1);
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
@@ -76,6 +76,7 @@ public class GameScreen extends ScreenAdapter {
         batch.setTransformMatrix(camera.view);
         orthogonalTiledMapRenderer.render();
         batch.begin();
+        player.draw(batch);
         batch.end();
     }
     private void drawDebug(){
@@ -85,5 +86,16 @@ public class GameScreen extends ScreenAdapter {
         player.drawDebug(shapeRenderer);
         shapeRenderer.end();
     }
-
+    private void stopPlayerLeavingTheScreen() {
+        if (player.getY() < 0){
+            player.setPosition(player.getX(), 0);
+            player.landed();
+        }
+        if (player.getX() < 0){
+            player.setPosition(0, player.getY());
+        }
+        if(player.getX() + player.WIDTH > WORLD_WIDTH){
+            player.setPosition(WORLD_WIDTH - player.WIDTH, player.getY());
+        }
+    }
 }
