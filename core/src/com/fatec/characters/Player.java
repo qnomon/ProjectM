@@ -13,7 +13,7 @@ public class Player {
     private static final float MAX_X_SPEED = 2;
     private static final float MAX_Y_SPEED = 2;
     public static final int WIDTH = 42;
-    public static final int HEIGHT = 62;
+    public static final int HEIGHT = 61;
     private final Rectangle collisionRectangle = new Rectangle(0,0 , WIDTH, HEIGHT);
     private float x = 0;
     private float y = 0;
@@ -28,9 +28,13 @@ public class Player {
     private final TextureRegion jumpUp;
     private final TextureRegion jumpDown;
 
+
     public Player(Texture texture){
         TextureRegion[] regions = TextureRegion.split(texture, WIDTH, HEIGHT)[0];
-        walking = new Animation(0.25f, regions[0], regions[1]);
+        walking = new Animation(0.04f, regions[0], regions[1],regions[2], regions[3],
+                regions[4], regions[5],regions[6], regions[7],regions[8], regions[9],regions[10], regions[11],
+                regions[12], regions[13],regions[14], regions[15],regions[16], regions[17],regions[18], regions[19],
+                regions[20], regions[21],regions[22], regions[23]);
         walking.setPlayMode(Animation.PlayMode.LOOP);
         standing = regions[0];
         jumpUp = regions[2];
@@ -39,7 +43,7 @@ public class Player {
 
 
     public void update(float delta) {
-        animationTimer += delta;
+        animationTimer += Gdx.graphics.getDeltaTime();
         Input input = Gdx.input;
         if (input.isKeyPressed(Input.Keys.RIGHT)) {
             xSpeed = MAX_X_SPEED;
@@ -67,7 +71,7 @@ public class Player {
     public void draw(Batch batch){
         TextureRegion toDraw = standing;
         if (xSpeed != 0){
-            toDraw = standing;
+            toDraw = (TextureRegion) walking.getKeyFrame(animationTimer);
         }
         if (ySpeed > 0){
             toDraw = jumpUp;
@@ -104,6 +108,10 @@ public class Player {
 
     public float getY(){
         return y;
+    }
+
+    public Rectangle getCollisionRectangle(){
+        return collisionRectangle;
     }
 
 }
