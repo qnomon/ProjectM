@@ -22,11 +22,14 @@ public class Player {
     private boolean blockJump = false;
     private float jumpYDistance = 0;
     private static final float MAX_JUMP_DISTANCE = 3 * HEIGHT;
+    private double gravity = 0;
+    private double wight = 800;
     private float animationTimer = 0;
     private final Animation walking;
     private final TextureRegion standing;
     private final TextureRegion jumpUp;
     private final TextureRegion jumpDown;
+
 
 
     public Player(Texture texture){
@@ -37,8 +40,8 @@ public class Player {
                 regions[20], regions[21],regions[22], regions[23]);
         walking.setPlayMode(Animation.PlayMode.LOOP);
         standing = regions[0];
-        jumpUp = regions[2];
-        jumpDown = regions[3];
+        jumpUp = regions[7];
+        jumpDown = regions[19];
     }
 
 
@@ -53,7 +56,7 @@ public class Player {
             xSpeed =0;
         }
         if (input.isKeyPressed(Input.Keys.UP) && !blockJump){
-            ySpeed = MAX_Y_SPEED;
+            ySpeed = 60 * Gdx.graphics.getDeltaTime();
             jumpYDistance += ySpeed;
             blockJump = jumpYDistance > MAX_JUMP_DISTANCE;
         }else{
