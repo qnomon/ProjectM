@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.*;
 
 public class Player {
     private static final float MAX_X_SPEED = 2;
@@ -22,17 +23,21 @@ public class Player {
     private boolean blockJump = false;
     private float jumpYDistance = 0;
     private static final float MAX_JUMP_DISTANCE = 3 * HEIGHT;
-    private double gravity = 0;
-    private double wight = 800;
+    private final double gravity = 0;
+    private final double wight = 800;
     private float animationTimer = 0;
     private final Animation walking;
     private final TextureRegion standing;
     private final TextureRegion jumpUp;
     private final TextureRegion jumpDown;
+    public BodyDef bodyDef = new BodyDef();
+    public Body body;
+    PolygonShape poly = new PolygonShape();
 
 
 
-    public Player(Texture texture){
+
+    public Player(Texture texture, World world){
         TextureRegion[] regions = TextureRegion.split(texture, WIDTH, HEIGHT)[0];
         walking = new Animation(0.04f, regions[0], regions[1],regions[2], regions[3],
                 regions[4], regions[5],regions[6], regions[7],regions[8], regions[9],regions[10], regions[11],
@@ -42,6 +47,21 @@ public class Player {
         standing = regions[0];
         jumpUp = regions[7];
         jumpDown = regions[19];
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(100,100);
+        body = world.createBody(bodyDef);
+        poly.setAsBox(20, 40);
+
+        //Set the shape here
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = poly;
+        fixtureDef.density = 0.5f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 0;
+
+        Fixture fixture = body.createFixture(poly, 1);
+
+
     }
 
 

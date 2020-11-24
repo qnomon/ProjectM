@@ -1,6 +1,7 @@
 package com.fatec.gameScreen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,6 +15,9 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -23,8 +27,8 @@ import com.fatec.game.GravityGame;
 import java.util.Iterator;
 
 public class GameScreen extends ScreenAdapter {
-    private static final float WORLD_WIDTH = 640;
-    private static final float WORLD_HEIGHT = 480;
+    private static final float WORLD_WIDTH = 800;
+    private static final float WORLD_HEIGHT = 600;
     private static final float CELL_SIZE = 16f;
     private ShapeRenderer shapeRenderer;
     private Viewport viewport;
@@ -35,7 +39,8 @@ public class GameScreen extends ScreenAdapter {
     private Texture playerTexture;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
-
+    private World world = new World(new Vector2(0, -50) ,true);
+    private Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
 
     public GameScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
@@ -57,9 +62,10 @@ public class GameScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         tiledMap = gravityGame.getAssetManager().get("level.tmx");
         playerTexture = gravityGame.getAssetManager().get("player.png");
-        player = new Player(playerTexture);
+        player = new Player(playerTexture, world);
         orthogonalTiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
+
     }
 
 
@@ -69,12 +75,41 @@ public class GameScreen extends ScreenAdapter {
         clearScreen();
         draw();
         drawDebug();
+
+        debugRenderer.render(world, camera.combined);
     }
     private void update(float delta) {
+        Input input = Gdx.input;
+
         player.update(delta);
         stopPlayerLeavingTheScreen();
         handlePlayerCollision();
+        world.step(delta, 6 ,2);
+
+        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.UP)){
+            world.setGravity(new Vector2(0, 50f));
     }
+        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.DOWN)){
+            world.setGravity(new Vector2(0, -50f));
+        }
+
+        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.LEFT)){
+            world.setGravity(new Vector2(-50, 0));
+        }
+
+        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.RIGHT)){
+            world.setGravity(new Vector2(+50, 0f));
+        }
+
+
+
+
+
+
+
+        player.body.setAwake(true);
+        }
+
     private void clearScreen() {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
