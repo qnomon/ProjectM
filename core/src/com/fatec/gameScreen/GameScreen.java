@@ -39,9 +39,6 @@ public class GameScreen extends ScreenAdapter {
     private Texture playerTexture;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
-    private World world = new World(new Vector2(0, -9.8f * 128) ,true);
-    private Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-
     public GameScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
     }
@@ -62,7 +59,7 @@ public class GameScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         tiledMap = gravityGame.getAssetManager().get("level.tmx");
         playerTexture = gravityGame.getAssetManager().get("player.png");
-        player = new Player(playerTexture, world);
+        player = new Player(playerTexture);
         orthogonalTiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
 
@@ -76,7 +73,6 @@ public class GameScreen extends ScreenAdapter {
         draw();
         drawDebug();
 
-        debugRenderer.render(world, camera.combined);
     }
     private void update(float delta) {
         Input input = Gdx.input;
@@ -84,30 +80,6 @@ public class GameScreen extends ScreenAdapter {
         player.update(delta);
         stopPlayerLeavingTheScreen();
         handlePlayerCollision();
-        world.step(delta, 6 ,2);
-
-        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.UP)){
-            world.setGravity(new Vector2(0, 9.8f * 128));
-    }
-        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.DOWN)){
-            world.setGravity(new Vector2(0, 9.8f * -128));
-        }
-
-        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.LEFT)){
-            world.setGravity(new Vector2(-128* 9.8f, 0));
-        }
-
-        if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.RIGHT)){
-            world.setGravity(new Vector2(+128 * 9.8f, 0f));
-        }
-
-
-
-
-
-
-
-        player.body.setAwake(true);
         }
 
     private void clearScreen() {
