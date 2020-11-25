@@ -39,7 +39,7 @@ public class GameScreen extends ScreenAdapter {
     private Texture playerTexture;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
-    private World world = new World(new Vector2(0, -50) ,true);
+    private World world = new World(new Vector2(0, -9.8f * 128) ,true);
     private Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
 
     public GameScreen(GravityGame gravityGame){
@@ -87,18 +87,18 @@ public class GameScreen extends ScreenAdapter {
         world.step(delta, 6 ,2);
 
         if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.UP)){
-            world.setGravity(new Vector2(0, 50f));
+            world.setGravity(new Vector2(0, 9.8f * 128));
     }
         if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.DOWN)){
-            world.setGravity(new Vector2(0, -50f));
+            world.setGravity(new Vector2(0, 9.8f * -128));
         }
 
         if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.LEFT)){
-            world.setGravity(new Vector2(-50, 0));
+            world.setGravity(new Vector2(-128* 9.8f, 0));
         }
 
         if (input.isKeyPressed(Input.Keys.ALT_LEFT) && input.isKeyPressed(Input.Keys.RIGHT)){
-            world.setGravity(new Vector2(+50, 0f));
+            world.setGravity(new Vector2(+128 * 9.8f, 0f));
         }
 
 
