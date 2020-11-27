@@ -1,3 +1,4 @@
+
 package com.fatec.characters;
 
 import com.badlogic.gdx.Gdx;
@@ -8,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.box2d.*;
 
 public class Player {
     private static final float MAX_X_SPEED = 2;
@@ -20,6 +20,7 @@ public class Player {
     private float y = 150;
     private float xSpeed = 0;
     private float ySpeed = 0;
+    public String lastDirection = "Right";
     private boolean blockJump = false;
     private float jumpYDistance = 0;
     private static final float MAX_JUMP_DISTANCE = 2 * HEIGHT;
@@ -35,14 +36,11 @@ public class Player {
 
     public Player(Texture texture){
         TextureRegion[] regions = TextureRegion.split(texture, WIDTH, HEIGHT)[0];
-        walking = new Animation(0.04f, regions[0], regions[1],regions[2], regions[3],
-                regions[4], regions[5],regions[6], regions[7],regions[8], regions[9],regions[10], regions[11],
-                regions[12], regions[13],regions[14], regions[15],regions[16], regions[17],regions[18], regions[19],
-                regions[20], regions[21],regions[22], regions[23]);
+        walking = new Animation(0.18f,regions[4], regions[5],regions[6], regions[7]);
         walking.setPlayMode(Animation.PlayMode.LOOP);
         standing = regions[0];
         jumpUp = regions[7];
-        jumpDown = regions[19];
+        jumpDown = regions[0];
 
     }
 
@@ -60,11 +58,10 @@ public class Player {
         if (input.isKeyPressed(Input.Keys.UP) && !blockJump){
             //ySpeed = 400 * Gdx.graphics.getDeltaTime();
             //jumpYDistance += ySpeed;
-            this.gravity = 400;
+            this.gravity =  500;
             blockJump = true;
         }else{
             ySpeed = -MAX_Y_SPEED;
-            blockJump = jumpYDistance > 0;
         }
         x += xSpeed;
         //y += ySpeed;
@@ -81,15 +78,12 @@ public class Player {
         if (xSpeed != 0){
             toDraw = (TextureRegion) walking.getKeyFrame(animationTimer);
         }
-        if (ySpeed > 0){
-            toDraw = jumpUp;
-        }else if (ySpeed < 0){
-            toDraw = jumpDown;
-        }
         if (xSpeed < 0){
             if (!toDraw.isFlipX()) toDraw.flip(true, false);
+            lastDirection = "Left";
         }else if (xSpeed > 0){
             if (toDraw.isFlipX()) toDraw.flip(true, false);
+            lastDirection = "Right";
         }
         batch.draw(toDraw, x,y);
     }

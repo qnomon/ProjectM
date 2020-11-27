@@ -44,6 +44,8 @@ public class LoadingScreen extends ScreenAdapter {
         shapeRenderer = new ShapeRenderer();
         gravityGame.getAssetManager().load("level.tmx", TiledMap.class);
         gravityGame.getAssetManager().load("player.png", Texture.class);
+        gravityGame.getAssetManager().load("bullet.png", Texture.class);
+        gravityGame.getAssetManager().load("Enemy.png", Texture.class);
     }
 
     @Override

@@ -12,24 +12,25 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fatec.characters.Enemies;
 import com.fatec.characters.Player;
+import com.fatec.game.Bullet;
 import com.fatec.game.GravityGame;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class GameScreen extends ScreenAdapter {
     private static final float WORLD_WIDTH = 800;
     private static final float WORLD_HEIGHT = 600;
-    private static final float CELL_SIZE = 16f;
+    private static final float CELL_SIZE = 32f;
     private ShapeRenderer shapeRenderer;
     private Viewport viewport;
     private Camera camera;
@@ -37,11 +38,17 @@ public class GameScreen extends ScreenAdapter {
     private final GravityGame gravityGame;
     private TiledMap tiledMap;
     private Texture playerTexture;
+    private Texture bulletTexture;
+    private Texture enemyTexture;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
+    public ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+    private float lastShot = 0;
+    private float elapsedTime = 0;
     public GameScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
     }
+    private Enemies enemy;
 
     @Override
     public void resize(int width, int height){
@@ -59,10 +66,12 @@ public class GameScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         tiledMap = gravityGame.getAssetManager().get("level.tmx");
         playerTexture = gravityGame.getAssetManager().get("player.png");
+        bulletTexture = gravityGame.getAssetManager().get("bullet.png");
+        enemyTexture = gravityGame.getAssetManager().get("Enemy.png");
         player = new Player(playerTexture);
         orthogonalTiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
-
+        enemy = new Enemies(150, 128, enemyTexture);
     }
 
 
@@ -76,11 +85,19 @@ public class GameScreen extends ScreenAdapter {
     }
     private void update(float delta) {
         Input input = Gdx.input;
-
+        elapsedTime += Gdx.graphics.getDeltaTime();
         player.update(delta);
         stopPlayerLeavingTheScreen();
-        handlePlayerCollision();
+
+        updateShoots(delta);
+        if(input.isKeyPressed(Input.Keys.SPACE) && elapsedTime-lastShot > 0.5f){
+            bullets.add(new Bullet(player.getX() + player.WIDTH/2, player.getY()+ player.HEIGHT/2, bulletTexture, player.lastDirection));
+            lastShot = elapsedTime;
         }
+        handlePlayerCollision();
+        camera.update();
+    }
+
 
     private void clearScreen() {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.3f, 1);
@@ -93,6 +110,8 @@ public class GameScreen extends ScreenAdapter {
         orthogonalTiledMapRenderer.render();
         batch.begin();
         player.draw(batch);
+        drawShoots(batch);
+        enemy.draw(batch);
         batch.end();
     }
     private void drawDebug(){
@@ -157,25 +176,35 @@ public class GameScreen extends ScreenAdapter {
         }
         return cells;
     }
-    private void handlePlayerCollision(){
-        Array<CollisionCell>playerCells = whichCellsDoesPlayerCover();
+    private void handlePlayerCollision() {
+        Array<CollisionCell> playerCells = whichCellsDoesPlayerCover();
         playerCells = filterOutNonTiledCells(playerCells);
-        for (CollisionCell cell : playerCells){
+        for (CollisionCell cell : playerCells) {
             float cellLevelX = cell.cellX * CELL_SIZE;
             float cellLevelY = cell.cellY * CELL_SIZE;
-            Rectangle intersection = new Rectangle();
-            Intersector.intersectRectangles(player.getCollisionRectangle(), new Rectangle(cellLevelX, cellLevelY, CELL_SIZE, CELL_SIZE), intersection);
-            if (intersection.getHeight() < intersection.getWidth()){
-                player.setPosition(player.getX(), intersection.getY() + intersection.getHeight());
+            if (player.getY() < cellLevelY + CELL_SIZE && cellLevelX <= player.getX() && cellLevelX + CELL_SIZE > player.getX()) {
+                player.setPosition(player.getX(), cellLevelY + CELL_SIZE);
                 player.landed();
-            }else if (intersection.getWidth() < intersection.getHeight()){
-                if(intersection.getX() == player.getX()){
-                    player.setPosition(intersection.getX()+intersection.getWidth(), player.getY());
-                }
-                if (intersection.getX() > player.getX()){
-                    player.setPosition(intersection.getX() - player.WIDTH, player.getY());
-                }
             }
+            if (player.getX() + player.WIDTH > cellLevelX && player.getY() + player.HEIGHT >= cellLevelY && player.getY()+1 < cellLevelY + CELL_SIZE && player.lastDirection == "Right") {
+                player.setPosition(cellLevelX - player.WIDTH, player.getY());
+            }else if (player.getX() < cellLevelX + CELL_SIZE && player.getY() + player.HEIGHT >= cellLevelY && player.getY()+1 < cellLevelY + CELL_SIZE && player.lastDirection == "Left") {
+                player.setPosition(cellLevelX, player.getY());
+            }
+        }
+    }
+
+    private void updateShoots(float delta){
+        for(int i =0; i < bullets.size(); i++){
+            Bullet bullet = bullets.get(i);
+            bullet.update(delta);
+        }
+    }
+
+    private void drawShoots(SpriteBatch batch){
+        for(int i =0; i < bullets.size(); i++){
+            Bullet bullet = bullets.get(i);
+            bullet.draw(batch);
         }
     }
 }
@@ -194,3 +223,4 @@ class CollisionCell{
         return cell == null;
     }
 }
+

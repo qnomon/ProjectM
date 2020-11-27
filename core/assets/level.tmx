@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="16">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="16">
  <tileset firstgid="1" source="tile_castle.tsx"/>
+ <tileset firstgid="871" name="terreno" tilewidth="32" tileheight="32" tilecount="7" columns="1">
+  <image source="terreno.png" width="32" height="224"/>
+ </tileset>
  <layer id="3" name="Objects" width="40" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1GsuA1EYxvEzYxloB5tAO4g9uLSIPbh0EKugiFVQxApck1IicQ0JxTLwn3RO8k5z2jgffJHzJL/ktH3fyZMzSZVycXFxcXFxcXFxsU/dV+oWd7jHAx7xhGe8+K132+25uPzXZNCDXvThyFPqGCc4xRnOvcZcFoGY1zt/2SmHIQxjBK90eUMd7/jAp9eYyyMU83pHdpf9A0umTkVMYRqj+KLLNxT/Gx58dGCSrwpN87EZle4u+4eWTJ2a+3XSpQvdyCCLAIv8VkKEJSwnVlS6e/OzbZg6yfMs+ukygEHkkEfY4v42saXS3WX/yJLcM51X2/Qz3d8+DrCGdZQTG0n3siW5Zzpvt+knO+h5fX872EUlsZd0r1iSe6bzIcboMo6J+J2igKKf7qDn9f1VcYHLRA1X4vNvyT19ronzDeboMo+F+J2ihMhPd9DzsWv8ALFunTE=
+   eJztk80KxCAMhIU8rNHo+1+L7IQOu730B7qH+SDETiSOwZYihBBCCCGEEEKIM1QrJeyTu73t5hoT/gfyXVaf9sez8IfueZWc9ZqRIwe09YYmtIlw1ILq1fa359CdenbU2lePiu9BEbTHqWeel1Ftn9048JG+G+mN7sXnBPnLvd1+vTq0/MfWegNoxScd
   </data>
  </layer>
 </map>
