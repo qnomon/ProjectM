@@ -43,21 +43,25 @@ public class GameScreen extends ScreenAdapter {
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Player player;
     public ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+    public ArrayList<Enemies> enemies = new ArrayList<>();
     private float lastShot = 0;
     private float elapsedTime = 0;
-    public GameScreen(GravityGame gravityGame){
+    private float spawnTime = 0;
+
+    public GameScreen(GravityGame gravityGame) {
         this.gravityGame = gravityGame;
     }
+
     private Enemies enemy;
 
     @Override
-    public void resize(int width, int height){
+    public void resize(int width, int height) {
         viewport.update(width, height);
     }
 
     @Override
     public void show() {
-        camera = new OrthographicCamera() ;
+        camera = new OrthographicCamera();
         camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
         camera.update();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
@@ -72,6 +76,7 @@ public class GameScreen extends ScreenAdapter {
         orthogonalTiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
         enemy = new Enemies(150, 128, enemyTexture);
+
     }
 
 
@@ -83,19 +88,27 @@ public class GameScreen extends ScreenAdapter {
         drawDebug();
 
     }
+
     private void update(float delta) {
         Input input = Gdx.input;
         elapsedTime += Gdx.graphics.getDeltaTime();
         player.update(delta);
         stopPlayerLeavingTheScreen();
-
+        enemy.update(delta);
+        checkBulletCollision();
         updateShoots(delta);
-        if(input.isKeyPressed(Input.Keys.SPACE) && elapsedTime-lastShot > 0.5f){
-            bullets.add(new Bullet(player.getX() + player.WIDTH/2, player.getY()+ player.HEIGHT/2, bulletTexture, player.lastDirection));
+        updateEnemies(delta);
+        if (input.isKeyPressed(Input.Keys.SPACE) && elapsedTime - lastShot > 0.5f) {
+            bullets.add(new Bullet(player.getX() + player.WIDTH / 2, player.getY() + player.HEIGHT / 2, bulletTexture, player.lastDirection));
             lastShot = elapsedTime;
         }
         handlePlayerCollision();
         camera.update();
+        if (elapsedTime - spawnTime > 3f) {
+            Enemies Enemy = new Enemies(850, 128, enemyTexture);
+            enemies.add(Enemy);
+            spawnTime = elapsedTime;
+        }
     }
 
 
@@ -104,7 +117,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
-    private void draw(){
+    private void draw() {
         batch.setProjectionMatrix(camera.projection);
         batch.setTransformMatrix(camera.view);
         orthogonalTiledMapRenderer.render();
@@ -112,29 +125,32 @@ public class GameScreen extends ScreenAdapter {
         player.draw(batch);
         drawShoots(batch);
         enemy.draw(batch);
+        drawEnemies(batch);
         batch.end();
     }
-    private void drawDebug(){
+
+    private void drawDebug() {
         shapeRenderer.setProjectionMatrix(camera.projection);
         shapeRenderer.setTransformMatrix(camera.view);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        player.drawDebug(shapeRenderer);
+      //  player.drawDebug(shapeRenderer);
         shapeRenderer.end();
     }
+
     private void stopPlayerLeavingTheScreen() {
-        if (player.getY() < 0){
+        if (player.getY() < 0) {
             player.setPosition(player.getX(), 0);
             player.landed();
         }
-        if (player.getX() < 0){
+        if (player.getX() < 0) {
             player.setPosition(0, player.getY());
         }
-        if(player.getX() + player.WIDTH > WORLD_WIDTH){
+        if (player.getX() + player.WIDTH > WORLD_WIDTH) {
             player.setPosition(WORLD_WIDTH - player.WIDTH, player.getY());
         }
     }
 
-    private Array<CollisionCell> whichCellsDoesPlayerCover(){
+    private Array<CollisionCell> whichCellsDoesPlayerCover() {
         float x = player.getX();
         float y = player.getY();
         Array<CollisionCell> cellsCovered = new Array<CollisionCell>();
@@ -146,36 +162,37 @@ public class GameScreen extends ScreenAdapter {
 
         TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
 
-        cellsCovered.add(new CollisionCell (tiledMapTileLayer.getCell(bottomLeftCellX, bottomLeftCellY), bottomLeftCellX, bottomLeftCellY));
+        cellsCovered.add(new CollisionCell(tiledMapTileLayer.getCell(bottomLeftCellX, bottomLeftCellY), bottomLeftCellX, bottomLeftCellY));
 
         if (cellX % 1 != 0 && cellY % 1 != 0) {
             int topRightCellX = bottomLeftCellX + 1;
             int topRightCellY = bottomLeftCellY + 1;
             cellsCovered.add(new CollisionCell(tiledMapTileLayer.getCell(topRightCellX, topRightCellY), topRightCellX, topRightCellY));
         }
-        if (cellX %1 != 0){
+        if (cellX % 1 != 0) {
             int bottomRightCellX = bottomLeftCellX + 1;
             int bottomRightCellY = bottomLeftCellY;
             cellsCovered.add(new CollisionCell(tiledMapTileLayer.getCell(bottomRightCellX, bottomRightCellY), bottomRightCellX, bottomRightCellY));
         }
-        if (cellY %1 != 0){
+        if (cellY % 1 != 0) {
             int topLeftCellX = bottomLeftCellX;
-            int topLeftCellY = bottomLeftCellY +1;
+            int topLeftCellY = bottomLeftCellY + 1;
             cellsCovered.add(new CollisionCell(tiledMapTileLayer.getCell(topLeftCellX, topLeftCellY), topLeftCellX, topLeftCellY));
         }
         return cellsCovered;
     }
 
-    private Array<CollisionCell> filterOutNonTiledCells(Array<CollisionCell> cells){
+    private Array<CollisionCell> filterOutNonTiledCells(Array<CollisionCell> cells) {
         for (Iterator<CollisionCell> iter = cells.iterator();
-        iter.hasNext();){
-            CollisionCell CollisionCell = iter.next() ;
-            if (CollisionCell.isEmpty()){
+             iter.hasNext(); ) {
+            CollisionCell CollisionCell = iter.next();
+            if (CollisionCell.isEmpty()) {
                 iter.remove();
             }
         }
         return cells;
     }
+
     private void handlePlayerCollision() {
         Array<CollisionCell> playerCells = whichCellsDoesPlayerCover();
         playerCells = filterOutNonTiledCells(playerCells);
@@ -186,27 +203,64 @@ public class GameScreen extends ScreenAdapter {
                 player.setPosition(player.getX(), cellLevelY + CELL_SIZE);
                 player.landed();
             }
-            if (player.getX() + player.WIDTH > cellLevelX && player.getY() + player.HEIGHT >= cellLevelY && player.getY()+1 < cellLevelY + CELL_SIZE && player.lastDirection == "Right") {
+            if (player.getX() + player.WIDTH > cellLevelX && player.getY() + player.HEIGHT >= cellLevelY && player.getY() + 1 < cellLevelY + CELL_SIZE && player.lastDirection == "Right") {
                 player.setPosition(cellLevelX - player.WIDTH, player.getY());
-            }else if (player.getX() < cellLevelX + CELL_SIZE && player.getY() + player.HEIGHT >= cellLevelY && player.getY()+1 < cellLevelY + CELL_SIZE && player.lastDirection == "Left") {
+            } else if (player.getX() < cellLevelX + CELL_SIZE && player.getY() + player.HEIGHT >= cellLevelY && player.getY() + 1 < cellLevelY + CELL_SIZE && player.lastDirection == "Left") {
                 player.setPosition(cellLevelX, player.getY());
             }
         }
     }
 
-    private void updateShoots(float delta){
-        for(int i =0; i < bullets.size(); i++){
+    private void updateShoots(float delta) {
+        for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
             bullet.update(delta);
         }
     }
 
-    private void drawShoots(SpriteBatch batch){
-        for(int i =0; i < bullets.size(); i++){
+    private void drawShoots(SpriteBatch batch) {
+        for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
             bullet.draw(batch);
         }
     }
+
+
+    private void updateEnemies(float delta) {
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemies enemy = enemies.get(i);
+            enemy.update(delta);
+            if (enemy.life <= 0) {
+                enemies.remove(i);
+            }
+        }
+    }
+
+    private void drawEnemies(SpriteBatch batch) {
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemies enemy = enemies.get(i);
+            enemy.draw(batch);
+        }
+    }
+
+
+
+private void checkBulletCollision(){
+    for(int i=0; i<enemies.size(); i++){
+        Enemies enemy = enemies.get(i);
+        for(int j=0; j<bullets.size(); j++){
+            Bullet bullet = bullets.get(j);
+            if(bullet.getX() + bullet.WIDTH > enemy.getX() && bullet.getY() + bullet.HEIGHT > enemy.getY()
+                    && enemy.getY() + enemy.HEIGHT > bullet.getY() && bullet.getX() < enemy.getX() + enemy.WIDTH){
+                enemy.life -= 50;
+                bullets.remove(j);
+            }
+            if(enemy.life <= 0){
+                enemies.remove(i);
+            }
+        }
+    }
+}
 }
 
 class CollisionCell{
@@ -222,5 +276,5 @@ class CollisionCell{
     public boolean isEmpty() {
         return cell == null;
     }
-}
+ }
 

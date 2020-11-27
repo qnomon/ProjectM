@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fatec.gameScreen.GameScreen;
 
 public class LoadingScreen extends ScreenAdapter {
-    private static final float WORLD_WIDTH = 640;
-    private static final float WORLD_HEIGHT = 480;
+    private static final float WORLD_WIDTH = 800;
+    private static final float WORLD_HEIGHT = 600;
     private static final float PROGRESSION_BAR_WIDTH = 100;
     private static final float PROGRESSION_BAR_HEIGHT = 25;
     private ShapeRenderer shapeRenderer;
@@ -27,8 +27,6 @@ public class LoadingScreen extends ScreenAdapter {
     public LoadingScreen(GravityGame gravityGame){
         this.gravityGame = gravityGame;
     }
-
-
 
     @Override
     public void resize(int width, int height) {
@@ -78,7 +76,7 @@ public class LoadingScreen extends ScreenAdapter {
         shapeRenderer.setTransformMatrix(camera.view);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(WORLD_WIDTH - PROGRESSION_BAR_WIDTH /2, WORLD_HEIGHT /2 - PROGRESSION_BAR_HEIGHT /2, progress * PROGRESSION_BAR_WIDTH, PROGRESSION_BAR_HEIGHT);
+        shapeRenderer.rect( PROGRESSION_BAR_WIDTH /2, WORLD_HEIGHT /2 - PROGRESSION_BAR_HEIGHT /2, progress * PROGRESSION_BAR_WIDTH, PROGRESSION_BAR_HEIGHT);
         shapeRenderer.end();
     }
 

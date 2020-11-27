@@ -7,6 +7,8 @@ public class Bullet {
     private static final float speed = 300;
     private float x = 0;
     private float y = 0;
+    public int WIDTH = 32;
+    public int HEIGHT = 9;
     private Texture sprite;
     private String direction = "Right";
 
@@ -28,6 +30,22 @@ public class Bullet {
 
     public void draw(Batch batch){
         batch.draw(sprite, x, y);
+    }
+
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
     }
 
 }
